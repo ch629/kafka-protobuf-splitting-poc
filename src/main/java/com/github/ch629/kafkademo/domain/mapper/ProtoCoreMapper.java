@@ -39,6 +39,8 @@ public class ProtoCoreMapper {
     }
 
     public Test mapTest(final TestProto testProto) {
-        return Optional.ofNullable(mappings.get(testProto.getTestingCase())).map(it -> it.apply(testProto)).orElse(null);
+        return Optional.ofNullable(mappings.get(testProto.getTestingCase()))
+                .map(it -> it.apply(testProto))
+                .orElse(null);
     }
 }

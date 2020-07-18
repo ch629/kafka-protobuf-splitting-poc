@@ -1,9 +1,11 @@
 package com.github.ch629.kafkademo.kafka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.ch629.kafkademo.domain.core.*;
+import com.github.ch629.kafkademo.domain.core.ImmutableAbcTest;
+import com.github.ch629.kafkademo.domain.core.ImmutableTestTest;
 import com.github.ch629.kafkademo.domain.mapper.ProtoCoreMapper;
 import com.github.ch629.kafkademo.domain.proto.TestProto;
-import com.github.ch629.kafkademo.domain.proto.TestProto.TestingCase;
 import com.google.common.collect.ImmutableMap;
 import io.vavr.control.Try;
 import org.slf4j.Logger;
@@ -21,12 +23,10 @@ public class TestRouter implements MessageRouter<TestProto> {
     private final ObjectMapper objectMapper;
     private final ProtoCoreMapper protoCoreMapper;
 
-    // TODO: These routes should take a core object, also they should really know inherently which version they need,
-    //  not too sure how to handle that nicely
-    private final ImmutableMap<TestingCase, BiConsumer<TestProto, Acknowledgment>> testRoutingMap =
-            ImmutableMap.<TestingCase, BiConsumer<TestProto, Acknowledgment>>builder()
-                    .put(TestingCase.ABC, this::handleAbc)
-                    .put(TestingCase.TEST, this::handleTest)
+    private final ImmutableMap<Class<? extends Test>, BiConsumer<Test, Acknowledgment>> testRoutingMap =
+            ImmutableMap.<Class<? extends Test>, BiConsumer<Test, Acknowledgment>>builder()
+                    .put(ImmutableAbcTest.class, this::handleAbc)
+                    .put(ImmutableTestTest.class, this::handleTest)
                     .build();
 
     public TestRouter(final ObjectMapper objectMapper, final ProtoCoreMapper protoCoreMapper) {
@@ -36,27 +36,30 @@ public class TestRouter implements MessageRouter<TestProto> {
 
     @Override
     public void route(final TestProto testProto, final Acknowledgment ack) {
-        fetchRoute(testProto).ifPresentOrElse(
-                it -> it.accept(testProto, ack),
-                ack::acknowledge
-        );
+        final var coreTest = Optional.ofNullable(protoCoreMapper.mapTest(testProto));
+
+        coreTest.ifPresentOrElse(test -> fetchRoute(test.getClass())
+                        .ifPresentOrElse(it -> it.accept(test, ack),
+                                ack::acknowledge),
+                ack::acknowledge);
     }
 
-    private Optional<BiConsumer<TestProto, Acknowledgment>> fetchRoute(final TestProto testProto) {
-        return Optional.ofNullable(testRoutingMap.get(testProto.getTestingCase()));
+    private <T> Optional<BiConsumer<Test, Acknowledgment>> fetchRoute(final Class<? extends T> clazz) {
+        LOGGER.info("fetchRoute: {}", clazz.getSimpleName());
+        return Optional.ofNullable(testRoutingMap.get(clazz));
     }
 
-    private void handleTest(final TestProto payload, final Acknowledgment ack) {
+    private void handleTest(final Test payload, final Acknowledgment ack) {
         LOGGER.info("Handle TEST: {}", writeValue(payload));
         ack.acknowledge();
     }
 
-    private void handleAbc(final TestProto payload, final Acknowledgment ack) {
+    private void handleAbc(final Test payload, final Acknowledgment ack) {
         LOGGER.info("Handle ABC: {}", writeValue(payload));
         ack.acknowledge();
     }
 
-    private String writeValue(final TestProto payload) {
-        return Try.of(() -> objectMapper.writeValueAsString(protoCoreMapper.mapTest(payload))).getOrElse("");
+    private String writeValue(final Test payload) {
+        return Try.of(() -> objectMapper.writeValueAsString(payload)).getOrElse("");
     }
 }
