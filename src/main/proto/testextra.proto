@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package kafka;
+
+option java_package = "com.github.ch629.kafkademo.domain.proto";
+option java_outer_classname = "TestProtosExtra";
+option java_multiple_files = true;
+
+message TestExtraProto {
+  string name = 1;
+
+  oneof testing {
+    string test = 2;
+    string abc = 3;
+    string def = 4;
+  }
+}

@@ -1,0 +1,27 @@
+server:
+  port: 7090
+
+spring:
+  kafka:
+    producer:
+#      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+#      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: com.github.ch629.kafkademo.serializers.KafkaProtobufSerializer
+    bootstrap-servers: localhost:9092
+    consumer:
+      enable-auto-commit: false
+      group-id: group1
+#      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+#      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: com.github.ch629.kafkademo.serializers.KafkaProtobufDeserializer
+      auto-offset-reset: earliest
+    listener:
+      ack-mode: manual_immediate
+    streams:
+      auto-startup: false
+
+
+
+schema:
+  registry:
+    url: abc
