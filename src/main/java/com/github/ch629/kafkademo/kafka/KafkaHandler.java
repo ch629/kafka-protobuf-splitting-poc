@@ -17,9 +17,9 @@ public class KafkaHandler {
         this.testMessageRouter = testMessageRouter;
     }
 
-    @KafkaListener(id = "listener", groupId = "group", topics = "Test")
-    public void testTopicListener(@Payload final TestProto payload, final Acknowledgment acknowledgment) {
+    @KafkaListener(id = "listener", topics = "Test")
+    public void testTopicListener(@Payload final TestProto payload, final Acknowledgment ack) {
         LOGGER.info("Received: {}", payload);
-        testMessageRouter.route(payload, acknowledgment);
+        testMessageRouter.route(payload, ack);
     }
 }

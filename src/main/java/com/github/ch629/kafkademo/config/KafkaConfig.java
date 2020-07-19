@@ -21,6 +21,7 @@ public class KafkaConfig {
     }
 
     @Bean
+    // TODO: Need to handle serializing DLQ messages with protobuf -> Or somehow provide just a byte[] serializer for this specific producer
     public SeekToCurrentErrorHandler errorHandler(final KafkaOperations<Object, Object> template) {
         return new SeekToCurrentErrorHandler(new DeadLetterPublishingRecoverer(template), new FixedBackOff(1000L, 2));
     }

@@ -17,11 +17,13 @@
     <properties>
         <java.version>11</java.version>
         <spring-cloud.version>2020.0.0-SNAPSHOT</spring-cloud.version>
+        <spring-boot.version>2.3.1.RELEASE</spring-boot.version>
 
         <kafka-protobuf-serde.version>2.2.0</kafka-protobuf-serde.version>
         <protobuf.version>3.12.2</protobuf.version>
         <kafka-protobuf-serializer.version>5.5.1</kafka-protobuf-serializer.version>
         <guava.version>29.0-jre</guava.version>
+        <jedis.version>3.3.0</jedis.version>
     </properties>
 
     <dependencyManagement>
@@ -30,6 +32,14 @@
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
                 <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -54,6 +64,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.data</groupId>-->
+<!--            <artifactId>spring-data-redis</artifactId>-->
+<!--        </dependency>-->
 
         <!-- Protobuf -->
         <dependency>
@@ -81,6 +95,12 @@
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
         </dependency>
+
+<!--        <dependency>-->
+<!--            <groupId>redis.clients</groupId>-->
+<!--            <artifactId>jedis</artifactId>-->
+<!--            <version>${jedis.version}</version>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>org.immutables</groupId>

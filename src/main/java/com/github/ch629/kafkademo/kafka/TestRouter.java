@@ -1,33 +1,26 @@
 package com.github.ch629.kafkademo.kafka;
 
 import com.github.ch629.kafkademo.domain.core.*;
-import com.github.ch629.kafkademo.domain.core.ImmutableAbcTest;
-import com.github.ch629.kafkademo.domain.core.ImmutableTestTest;
 import com.github.ch629.kafkademo.domain.mapper.ProtoCoreMapper;
 import com.github.ch629.kafkademo.domain.proto.TestProto;
+import com.github.ch629.kafkademo.kafka.routes.Route;
 import com.google.common.collect.ImmutableMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
 public class TestRouter implements MessageRouter<TestProto> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestRouter.class);
-
     private final ProtoCoreMapper protoCoreMapper;
 
-    private final ImmutableMap<Class<? extends Test>, Route<?>> testRoutingMap;
+    private final ImmutableMap<Class<? extends Test>, Route<? extends Test>> testRoutingMap;
 
-    public TestRouter(final ProtoCoreMapper protoCoreMapper, Route<AbcTest> abcTestRoute, Route<TestTest> testTestRoute) {
+    public TestRouter(final ProtoCoreMapper protoCoreMapper, final List<Route<? extends Test>> routes) {
         this.protoCoreMapper = protoCoreMapper;
 
-        testRoutingMap = ImmutableMap.<Class<? extends Test>, Route<?>>builder()
-                .put(ImmutableAbcTest.class, abcTestRoute)
-                .put(ImmutableTestTest.class, testTestRoute)
-                .build();
+        testRoutingMap = routes.stream().collect(ImmutableMap.toImmutableMap(Route::getRouteClass, route -> route));
     }
 
     @Override
@@ -37,16 +30,15 @@ public class TestRouter implements MessageRouter<TestProto> {
         coreTest.ifPresent(test -> call(test.getClass(), test, ack));
     }
 
-    private <T extends Test> void call(final Class<? extends T> clazz, final Test test, final Acknowledgment acknowledgment) {
+    private <T extends Test> void call(final Class<? extends T> clazz, final Test test, final Acknowledgment ack) {
         fetchRoute(clazz)
                 .ifPresent(route -> {
                     final Route<T> castedRoute = (Route<T>) route;
-                    castedRoute.route(castedRoute.convert(test), acknowledgment);
+                    castedRoute.route(castedRoute.cast(test), ack);
                 });
     }
 
     private <T> Optional<Route<?>> fetchRoute(final Class<? extends T> clazz) {
-        LOGGER.info("fetchRoute: {}", clazz.getSimpleName());
         return Optional.ofNullable(testRoutingMap.get(clazz));
     }
 }

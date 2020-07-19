@@ -1,7 +1,8 @@
-package com.github.ch629.kafkademo.kafka;
+package com.github.ch629.kafkademo.kafka.routes;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.ch629.kafkademo.domain.core.AbcTest;
+import com.github.ch629.kafkademo.domain.core.ImmutableAbcTest;
 import io.vavr.control.Try;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,9 +20,14 @@ public class AbcRoute implements Route<AbcTest> {
     }
 
     @Override
-    public void route(final AbcTest payload, final Acknowledgment acknowledgment) {
+    public Class<ImmutableAbcTest> getRouteClass() {
+        return ImmutableAbcTest.class;
+    }
+
+    @Override
+    public void route(final AbcTest payload, final Acknowledgment ack) {
         LOGGER.info("Handle ABC: {}", Try.of(() -> objectMapper.writeValueAsString(payload)).getOrElse(""));
 
-        acknowledgment.acknowledge();
+        ack.acknowledge();
     }
 }
