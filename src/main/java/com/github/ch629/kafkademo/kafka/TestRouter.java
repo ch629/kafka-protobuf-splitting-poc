@@ -27,11 +27,11 @@ public class TestRouter implements MessageRouter<TestProto> {
     public void route(final TestProto testProto, final Acknowledgment ack) {
         final var coreTest = Optional.ofNullable(protoCoreMapper.mapTest(testProto));
 
-        coreTest.ifPresent(test -> call(test.getClass(), test, ack));
+        coreTest.ifPresent(test -> call(test, ack));
     }
 
-    private <T extends Test> void call(final Class<? extends T> clazz, final Test test, final Acknowledgment ack) {
-        fetchRoute(clazz)
+    private <T extends Test> void call(final Test test, final Acknowledgment ack) {
+        fetchRoute(test.getClass())
                 .ifPresent(route -> {
                     final Route<T> castedRoute = (Route<T>) route;
                     castedRoute.route(castedRoute.cast(test), ack);
