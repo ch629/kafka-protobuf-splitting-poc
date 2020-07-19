@@ -6,24 +6,37 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.4.0-SNAPSHOT</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath/>
     </parent>
+
     <groupId>com.github.ch629</groupId>
     <artifactId>kafka-demo</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>kafka-demo</name>
-    <description>Demo project for Spring Boot</description>
+    <description>Kafka POC</description>
 
     <properties>
         <java.version>11</java.version>
+
+        <!-- Spring -->
         <spring-cloud.version>2020.0.0-SNAPSHOT</spring-cloud.version>
         <spring-boot.version>2.3.1.RELEASE</spring-boot.version>
 
+        <!-- Protobuf -->
         <kafka-protobuf-serde.version>2.2.0</kafka-protobuf-serde.version>
         <protobuf.version>3.12.2</protobuf.version>
+        <protobuf-java.version>3.4.0</protobuf-java.version>
         <kafka-protobuf-serializer.version>5.5.1</kafka-protobuf-serializer.version>
+
+        <!-- Misc -->
         <guava.version>29.0-jre</guava.version>
         <jedis.version>3.3.0</jedis.version>
+
+        <immutables.version>2.8.2</immutables.version>
+
+        <!-- Plugins -->
+        <protoc-jar-maven-plugin.version>3.1.0.1</protoc-jar-maven-plugin.version>
+        <protoc.version>3.1.0</protoc.version>
     </properties>
 
     <dependencyManagement>
@@ -64,22 +77,16 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.data</groupId>-->
-<!--            <artifactId>spring-data-redis</artifactId>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-redis</artifactId>
+        </dependency>
 
         <!-- Protobuf -->
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
-            <version>3.4.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-protobuf</artifactId>
-            <version>2.9.9</version>
+            <version>${protobuf-java.version}</version>
         </dependency>
 
         <!-- DB -->
@@ -96,16 +103,16 @@
             <version>${guava.version}</version>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>redis.clients</groupId>-->
-<!--            <artifactId>jedis</artifactId>-->
-<!--            <version>${jedis.version}</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>${jedis.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.immutables</groupId>
             <artifactId>value</artifactId>
-            <version>2.8.2</version>
+            <version>${immutables.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -132,7 +139,7 @@
             <plugin>
                 <groupId>com.github.os72</groupId>
                 <artifactId>protoc-jar-maven-plugin</artifactId>
-                <version>3.1.0.1</version>
+                <version>${protoc-jar-maven-plugin.version}</version>
                 <executions>
                     <execution>
                         <phase>generate-sources</phase>
@@ -140,7 +147,7 @@
                             <goal>run</goal>
                         </goals>
                         <configuration>
-                            <protocVersion>3.1.0</protocVersion>
+                            <protocVersion>${protoc.version}</protocVersion>
                             <inputDirectories>
                                 <include>src/main/proto</include>
                             </inputDirectories>
