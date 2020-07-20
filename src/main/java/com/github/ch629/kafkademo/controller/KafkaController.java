@@ -1,12 +1,13 @@
 package com.github.ch629.kafkademo.controller;
 
+import com.github.ch629.kafkademo.domain.core.kafka.ListenerStatus;
 import com.github.ch629.kafkademo.domain.proto.TestExtraProto;
 import com.github.ch629.kafkademo.kafka.KafkaManager;
+import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/kafka")
@@ -30,12 +31,29 @@ public class KafkaController {
     }
 
     @PutMapping("/resume")
-    public void resume() {
-        kafkaManager.resume();
+    public ResponseEntity<Void> resume() {
+        kafkaManager.resumeAll(true);
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/pause")
-    public void pause() {
-        kafkaManager.pause();
+    public ResponseEntity<Void> pause() {
+        kafkaManager.pauseAll(true);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{listenerName}/pause")
+    public ResponseEntity<Void> pause(@PathVariable final String listenerName) {
+        return kafkaManager.pauseListener(listenerName, true) ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+    }
+
+    @PutMapping("/{listenerName}/resume")
+    public ResponseEntity<Void> resume(@PathVariable final String listenerName) {
+        return kafkaManager.resumeListener(listenerName, true) ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<Map<String, ListenerStatus>> fetchAllStatus() {
+        return ResponseEntity.ok(kafkaManager.getListenersStatus());
     }
 }
